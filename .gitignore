@@ -1,0 +1,34 @@
+#### maven
+
+target/
+pom.xml.versionsBackup
+
+
+
+
+#### eclipse
+
+.project
+.settings
+.buildpath
+.classpath
+
+
+
+
+#### idea
+
+.idea
+*.iml
+
+
+
+
+#### logs
+
+*.log
+*.log.gz
+
+
+
+
