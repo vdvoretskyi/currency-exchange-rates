@@ -23,7 +23,7 @@ public class HttpRequest {
     private static final Logger logger = LoggerFactory.getLogger(HttpRequest.class);
 
     private final URL url;
-    private final List<RequestHeader> headers = new ArrayList<RequestHeader>();
+    private final List<RequestHeader> headers = new ArrayList<>();
 
     private final String method;
     private long bodyLength;
@@ -112,13 +112,7 @@ public class HttpRequest {
 
         logger.debug(connection.toString());
 
-
-        final String contentType = connection.getContentType();
-        if (contentType.contains("application/json")) {
-            return new JsonHttpResponse(connection);
-        } else {
-            return new HttpResponse(connection);
-        }
+        return new HttpResponse(connection);
     }
 
     private HttpURLConnection createConnection() {

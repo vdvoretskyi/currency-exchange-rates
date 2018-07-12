@@ -9,17 +9,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
+import static info.datamuse.currency.utils.HttpUtils.BUFFER_SIZE;
+import static info.datamuse.currency.utils.HttpUtils.isSuccess;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpResponse {
-
-    private static final int BUFFER_SIZE = 8192;
     private static final Logger logger = LoggerFactory.getLogger(HttpResponse.class);
 
     private final HttpURLConnection connection;
 
     private int responseCode;
-    private String bodyString;
+    private String errorString;
 
     private InputStream inputStream;
 
@@ -36,9 +36,9 @@ public class HttpResponse {
             logger.debug(this.toString());
             String response = null;
             try {
-                response = this.bodyToString();
+                response = this.getError();
                 if (response == null || response.length() == 0) {
-                    response = this.getBodyAsText();
+                    response = this.getBodyAsString();
                 }
             } catch(Exception e) {
                 logger.debug("Couldn't get more detailed error information");
@@ -52,7 +52,7 @@ public class HttpResponse {
         return responseCode;
     }
 
-    public String getBodyAsText() {
+    public String getBodyAsString() {
         final InputStream bodyStream = this.getBody();
         final InputStreamReader reader = new InputStreamReader(bodyStream, UTF_8);
         final StringBuilder builder = new StringBuilder();
@@ -78,11 +78,7 @@ public class HttpResponse {
     public InputStream getBody() {
         if (this.inputStream == null) {
             try {
-                if (this.inputStream == null) {
-                    this.inputStream = this.connection.getInputStream();
-                }
-
-                this.inputStream = this.inputStream;
+                this.inputStream = this.connection.getInputStream();
             } catch (IOException e) {
                 throw new RuntimeException("Couldn't connect due to a network error.", e);
             }
@@ -90,16 +86,11 @@ public class HttpResponse {
         return this.inputStream;
     }
 
-    public String bodyToString() {
-        if (this.bodyString == null && !isSuccess(this.responseCode)) {
-            this.bodyString = readErrorStream(this.getErrorStream());
+    public String getError() {
+        if (this.errorString == null && !isSuccess(this.responseCode)) {
+            this.errorString = readErrorStream(this.connection.getErrorStream());
         }
-        return this.bodyString;
-    }
-
-    private InputStream getErrorStream() {
-        final InputStream errorStream = this.connection.getErrorStream();
-        return errorStream;
+        return this.errorString;
     }
 
     private static String readErrorStream(final InputStream stream) {
@@ -164,15 +155,11 @@ public class HttpResponse {
                 append(this.connection.getURL().toString()).
                 append(lineSeparator).
                 append(this.connection.getHeaderFields().toString()).toString();
-        if (this.bodyString != null) {
+        if (this.errorString != null) {
             builder.append(lineSeparator);
-            builder.append(bodyString);
+            builder.append(errorString);
         }
         return builder.toString().trim();
-    }
-
-    private static boolean isSuccess(final int responseCode) {
-        return responseCode >= 200 && responseCode < 400;
     }
 
 }

@@ -41,12 +41,16 @@
 
         <org.json.version>20180130</org.json.version>
         <slf4j.version>1.7.25</slf4j.version>
+        <logback.version>1.2.3</logback.version>
+
+        <junit.jupiter.version>5.2.0</junit.jupiter.version>
 
         <maven.cleanPlugin.version>3.0.0</maven.cleanPlugin.version>
         <maven.compilerPlugin.version>3.7.0</maven.compilerPlugin.version>
         <maven.resourcesPlugin.version>3.0.2</maven.resourcesPlugin.version>
         <maven.jarPlugin.version>3.0.2</maven.jarPlugin.version>
         <maven.enforcerPlugin.version>3.0.0-M1</maven.enforcerPlugin.version>
+        <maven.surefirePlugin.version>2.22.0</maven.surefirePlugin.version>
     </properties>
 
 
@@ -56,10 +60,37 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -87,12 +118,6 @@
                                 <requireJavaVersion>
                                     <version>${java.version}</version>
                                 </requireJavaVersion>
-                                <requirePluginVersions>
-                                    <banLatest>true</banLatest>
-                                    <banRelease>true</banRelease>
-                                    <banSnapshots>true</banSnapshots>
-                                    <banTimestamps>true</banTimestamps>
-                                </requirePluginVersions>
                                 <requireReleaseDeps>
                                     <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
                                     <searchTransitive>true</searchTransitive>
@@ -140,6 +165,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jarPlugin.version}</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefirePlugin.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                    <runOrder>random</runOrder>
+                    <enableAssertions>true</enableAssertions>
+                    <argLine>-Xmx1024m</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>

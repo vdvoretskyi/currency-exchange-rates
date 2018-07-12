@@ -1,7 +1,8 @@
 package info.datamuse.currency;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+
+import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
 
 public class CurrencyConverterDecorator implements CurrencyConverter {
 
@@ -13,8 +14,7 @@ public class CurrencyConverterDecorator implements CurrencyConverter {
 
     @Override
     public BigDecimal convert(final String source, final String target) {
-        Objects.requireNonNull(source, "Source currency must not be null");
-        Objects.requireNonNull(source, "Target currency must not be null");
+        validateCurrencies(source, target);
 
         return converter.convert(source, target);
     }
