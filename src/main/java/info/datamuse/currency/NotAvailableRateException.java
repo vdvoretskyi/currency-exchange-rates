@@ -2,6 +2,8 @@ package info.datamuse.currency;
 
 public class NotAvailableRateException extends RuntimeException {
 
+    private static final long serialVersionUID = 1861319516634747711L;
+
     public NotAvailableRateException() {
     }
 

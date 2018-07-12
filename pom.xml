@@ -39,6 +39,7 @@
         <maven.version>3.5.3</maven.version>
         <java.version>10</java.version>
 
+        <org.json.version>20180130</org.json.version>
         <slf4j.version>1.7.25</slf4j.version>
 
         <maven.cleanPlugin.version>3.0.0</maven.cleanPlugin.version>
@@ -54,6 +55,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${org.json.version}</version>
         </dependency>
     </dependencies>
 
