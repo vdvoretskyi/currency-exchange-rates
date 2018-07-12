@@ -11,6 +11,11 @@
     <name>Currency Exchange Rates library</name>
     <description></description>
 
+    <organization>
+        <name>Datamuse</name>
+        <url>https://www.datamuse.info</url>
+    </organization>
+
     <packaging>jar</packaging>
 
     <repositories>
@@ -32,22 +37,74 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.version>3.5.3</maven.version>
-        <java.version>1.8</java.version>
+        <java.version>10</java.version>
 
         <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
 
         <maven.cleanPlugin.version>3.0.0</maven.cleanPlugin.version>
         <maven.compilerPlugin.version>3.7.0</maven.compilerPlugin.version>
         <maven.resourcesPlugin.version>3.0.2</maven.resourcesPlugin.version>
         <maven.jarPlugin.version>3.0.2</maven.jarPlugin.version>
+        <maven.enforcerPlugin.version>3.0.0-M1</maven.enforcerPlugin.version>
     </properties>
 
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
+
         <plugins>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>${maven.cleanPlugin.version}</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven.enforcerPlugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>${maven.version}</version>
+                                </requireMavenVersion>
+                                <requireJavaVersion>
+                                    <version>${java.version}</version>
+                                </requireJavaVersion>
+                                <requirePluginVersions>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <banSnapshots>true</banSnapshots>
+                                    <banTimestamps>true</banTimestamps>
+                                </requirePluginVersions>
+                                <requireReleaseDeps>
+                                    <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
+                                    <searchTransitive>true</searchTransitive>
+                                    <onlyWhenRelease>false</onlyWhenRelease>
+                                    <excludes>
+                                        <exclude>info.datamuse.currency:*</exclude>
+                                        <exclude>info.datamuse.currency.*:*</exclude>
+                                    </excludes>
+                                </requireReleaseDeps>
+                                <dependencyConvergence/>
+                                <requireUpperBoundDeps/>
+                                <reactorModuleConvergence/>
+                                <banDistributionManagement/>
+                                <banDuplicatePomDependencyVersions/>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
