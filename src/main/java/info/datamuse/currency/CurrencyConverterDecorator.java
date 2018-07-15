@@ -2,8 +2,6 @@ package info.datamuse.currency;
 
 import java.math.BigDecimal;
 
-import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
-
 public class CurrencyConverterDecorator implements CurrencyConverter {
 
     protected final CurrencyConverter converter;
@@ -13,9 +11,7 @@ public class CurrencyConverterDecorator implements CurrencyConverter {
     }
 
     @Override
-    public BigDecimal convert(final String source, final String target) {
-        validateCurrencies(source, target);
-
-        return converter.convert(source, target);
+    public BigDecimal convert(final String sourceCurrency, final String targetCurrency) {
+        return converter.convert(sourceCurrency, targetCurrency);
     }
 }

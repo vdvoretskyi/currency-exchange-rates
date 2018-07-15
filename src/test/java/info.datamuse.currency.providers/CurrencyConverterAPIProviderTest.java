@@ -32,6 +32,6 @@ class CurrencyConverterAPIProviderTest {
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> provider.convert(null, "EUR"));
         Assertions.assertThrows(IllegalArgumentException.class, () -> provider.convert("USD", null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.convert(null, null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.convert((String)null, (String)null));
     }
 }

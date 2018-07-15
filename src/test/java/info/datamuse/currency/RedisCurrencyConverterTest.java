@@ -58,4 +58,14 @@ class RedisCurrencyConverterTest {
             redisProviderCurrencyConverter.evict("USD", "EUR");
         }
     }
+
+    @Test
+    void convertAutoUpdate() throws InterruptedException {
+        final RedisCurrencyConverter redisProviderCurrencyConverter =
+                new RedisCurrencyConverter("localhost", 6379, new CurrencyConverterAPIProvider(), true);
+        redisProviderCurrencyConverter.setExpirationTime(1);
+        final BigDecimal rate1 = redisProviderCurrencyConverter.convert("USD", "EUR", true);
+        Assertions.assertNotNull(rate1, "Currency rate USD/EUR: " + rate1);
+        //TODO:
+    }
 }
