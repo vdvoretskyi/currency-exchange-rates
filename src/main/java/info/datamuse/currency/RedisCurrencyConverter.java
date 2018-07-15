@@ -130,6 +130,7 @@ public class RedisCurrencyConverter extends CurrencyConverterDecorator {
                 logger.info("Subscription ended.");
             } catch(final RuntimeException e) {
                 logger.error("Subscribing failed.", e);
+            } finally {
                 jedis.close();
             }
         });
