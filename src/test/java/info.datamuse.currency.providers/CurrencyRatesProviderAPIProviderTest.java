@@ -1,0 +1,37 @@
+package info.datamuse.currency.providers;
+
+
+import info.datamuse.currency.NotAvailableRateException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+class CurrencyRatesProviderAPIProviderTest {
+
+    private final static CurrencyRatesProviderAPIProvider provider = new CurrencyRatesProviderAPIProvider();
+
+    @Test
+    void convertSuccess() {
+        BigDecimal rate = provider.getExchangeRate("USD", "EUR");
+        Assertions.assertNotNull(rate);
+
+        rate = provider.getExchangeRate("EUR", "USD");
+        Assertions.assertNotNull(rate);
+    }
+
+    @Test
+    void convertFail() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("", "EUR"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("USD", ""));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("", ""));
+
+        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD1", "EUR1"));
+        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD1", "EUR"));
+        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD", "EUR1"));
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate(null, "EUR"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("USD", null));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate((String)null, (String)null));
+    }
+}

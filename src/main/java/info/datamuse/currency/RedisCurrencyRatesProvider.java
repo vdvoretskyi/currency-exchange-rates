@@ -4,20 +4,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.JedisPubSub;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.Locale;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
 
-public class RedisCurrencyConverter extends CurrencyConverterDecorator {
+public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
 
     private static final int DEFAULT_REDIS_CURRENCY_KEY_EXPIRE = 4 * 60 * 60;
 
@@ -28,36 +22,18 @@ public class RedisCurrencyConverter extends CurrencyConverterDecorator {
     protected Thread updateKeysOnExpirationThread;
     protected Jedis jedisPubSub;
 
-    private static final JedisPoolConfig jedisPoolConfig = buildPoolConfig();
-    private static JedisPoolConfig buildPoolConfig() {
-        final JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(128);
-        poolConfig.setMaxIdle(128);
-        poolConfig.setMinIdle(16);
-        poolConfig.setTestOnBorrow(true);
-        poolConfig.setTestOnReturn(true);
-        poolConfig.setTestWhileIdle(true);
-        poolConfig.setMinEvictableIdleTimeMillis(Duration.ofSeconds(60).toMillis());
-        poolConfig.setTimeBetweenEvictionRunsMillis(Duration.ofSeconds(30).toMillis());
-        poolConfig.setNumTestsPerEvictionRun(3);
-        poolConfig.setBlockWhenExhausted(true);
-        return poolConfig;
+    private static final Logger logger = LoggerFactory.getLogger(RedisCurrencyRatesProvider.class);
+
+    public RedisCurrencyRatesProvider(final JedisPool jedisPool,
+                                      final CurrencyRatesProvider converterProvider) {
+        this(jedisPool, converterProvider, false);
     }
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisCurrencyConverter.class);
-
-    public RedisCurrencyConverter(final String host,
-                                  final int port,
-                                  final CurrencyConverter converterProvider) {
-        this(host, port, converterProvider, false);
-    }
-
-    public RedisCurrencyConverter(final String host,
-                                  final int port,
-                                  final CurrencyConverter converterProvider,
-                                  final boolean autoUpdate) {
+    public RedisCurrencyRatesProvider(final JedisPool jedisPool,
+                                      final CurrencyRatesProvider converterProvider,
+                                      final boolean autoUpdate) {
         super(converterProvider);
-        this.jedisPool = new JedisPool(jedisPoolConfig, host, port);
+        this.jedisPool = jedisPool;
         this.autoUpdate = autoUpdate;
         if (autoUpdate) {
             jedisPubSub = jedisPool.getResource();
@@ -81,14 +57,14 @@ public class RedisCurrencyConverter extends CurrencyConverterDecorator {
     }
 
     @Override
-    public BigDecimal convert(final String sourceCurrency, final String targetCurrency) {
-        return convert(sourceCurrency, targetCurrency, false);
+    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
+        return convert(sourceCurrencyCode, targetCurrencyCode, false);
     }
 
     public BigDecimal convert(final String sourceCurrency, final String targetCurrency, final boolean latest) {
         validateCurrencies(sourceCurrency, targetCurrency);
 
-        return evaluate(sourceCurrency, targetCurrency, () -> super.convert(sourceCurrency, targetCurrency), latest);
+        return evaluate(sourceCurrency, targetCurrency, () -> super.getExchangeRate(sourceCurrency, targetCurrency), latest);
     }
 
     protected BigDecimal evaluate(final String sourceCurrency,
@@ -126,7 +102,7 @@ public class RedisCurrencyConverter extends CurrencyConverterDecorator {
                 logger.info("Subscribing to \"commonChannel\". This thread will be blocked.");
                 jedis.configSet("notify-keyspace-events", "KEA");
                 logger.info("SET notify-keyspace-events=KEA");
-                jedis.psubscribe(new KeyExpiredListener((sourceCurrency, targetCurrency) -> convert(sourceCurrency, targetCurrency, true)), key);
+                jedis.psubscribe(new RedisKeyExpiredListener((sourceCurrency, targetCurrency) -> convert(sourceCurrency, targetCurrency, true)), key);
                 logger.info("Subscription ended.");
             } catch(final RuntimeException e) {
                 logger.error("Subscribing failed.", e);
@@ -147,42 +123,8 @@ public class RedisCurrencyConverter extends CurrencyConverterDecorator {
     private static String uniquePairKey(final String sourceCurrency, final String targetCurrency) {
         return String.format(REDIS_CURRENCY_KEY_TEMPLATE, sourceCurrency + REDIS_CURRENCY_KEY_SPLITTER + targetCurrency);
     }
-    private static String[] currencies(final String pairKey) {
-        return pairKey.split(REDIS_CURRENCY_KEY_SPLITTER);
-    }
-    private static final String REDIS_CURRENCY_KEY_SPLITTER = "_";
-    private static final String REDIS_CURRENCY_KEY_TEMPLATE = "currency/converter/%s/rate";
-
-    private static class KeyExpiredListener extends JedisPubSub {
-        private final BiConsumer<String, String> keyEvalCallback;
-
-        KeyExpiredListener(final BiConsumer<String, String> keyEvalCallback) {
-            this.keyEvalCallback = keyEvalCallback;
-        }
-
-        @Override
-        public void onPSubscribe(final String pattern, final int subscribedChannels) {
-           logger.debug("onPSubscribe "
-                    + pattern + " " + subscribedChannels);
-        }
-
-        @Override
-        public void onPMessage(final String pattern, final String channel, final String message) {
-            if (message.equalsIgnoreCase("expired")) {
-                logger.debug("onPMessage pattern "
-                        + pattern + " " + channel + " " + message);
-                final Matcher matcher = keyCurrencyPairPattern.matcher(channel);
-                if (matcher.matches()) {
-                    final String[] currencies = currencies(matcher.group(1));
-                    if (currencies.length > 1) {
-                        logger.debug("Currency rate will be updates: {}/{}" + currencies[0], currencies[1]);
-                        keyEvalCallback.accept(currencies[0], currencies[1]);
-                    }
-                }
-            }
-        }
-    }
+    static final String REDIS_CURRENCY_KEY_SPLITTER = "_";
+    static final String REDIS_CURRENCY_KEY_TEMPLATE = "currency/converter/%s/rate";
     private static final String REDIS_CURRENCY_KEYSPACE_MESSAGE_PATTERN = "__keyspace*__:" + String.format(Locale.ROOT,
             REDIS_CURRENCY_KEY_TEMPLATE, "*");
-    private static final Pattern keyCurrencyPairPattern = Pattern.compile(".*" + String.format(Locale.ROOT, REDIS_CURRENCY_KEY_TEMPLATE, "([^/]*)"));
 }

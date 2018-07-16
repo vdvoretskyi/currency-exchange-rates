@@ -1,12 +1,11 @@
 package info.datamuse.currency.providers;
 
-import info.datamuse.currency.CurrencyConverter;
+import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
 import info.datamuse.currency.providers.http.HttpRequest;
 import info.datamuse.currency.providers.http.HttpResponse;
 import info.datamuse.currency.providers.http.JsonHttpRequest;
 import info.datamuse.currency.providers.http.URLTemplate;
-import info.datamuse.currency.utils.JsonUtils;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
@@ -16,15 +15,15 @@ import static info.datamuse.currency.utils.CurrencyUtils.format;
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
 import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 
-public final class CurrencyConverterAPIProvider implements CurrencyConverter {
+public final class CurrencyRatesProviderAPIProvider implements CurrencyRatesProvider {
 
     private static final URLTemplate CURRENCY_CONVERTER_API_URL_TEMPLATE = new URLTemplate("https://free.currencyconverterapi.com/api/v5/convert");
 
     @Override
-    public BigDecimal convert(final String source, final String target) {
-        validateCurrencies(source, target);
+    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
+        validateCurrencies(sourceCurrencyCode, targetCurrencyCode);
 
-        final String currencyPair = currencyPair(source, target);
+        final String currencyPair = currencyPair(sourceCurrencyCode, targetCurrencyCode);
         final URL url = CURRENCY_CONVERTER_API_URL_TEMPLATE.buildWithQuery(
                 "q=%s&compact=y", currencyPair);
         final HttpRequest httpRequest = new JsonHttpRequest(url, HTTP_METHOD_GET);
@@ -37,7 +36,7 @@ public final class CurrencyConverterAPIProvider implements CurrencyConverter {
     }
 
     private BigDecimal parseResponse(final HttpResponse httpResponse, final String currencyPair) {
-        final JSONObject jsonObject = JsonUtils.parse(httpResponse.getBodyAsString());
+        final JSONObject jsonObject = new JSONObject(httpResponse.getBodyAsString());
         final JSONObject pairKey = jsonObject.getJSONObject(currencyPair);
         if (pairKey != null) {
             return pairKey.getBigDecimal("val");
