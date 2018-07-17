@@ -11,7 +11,5 @@ class SimpleCurrencyRatesProviderTest {
         final SimpleCurrencyRatesProvider simpleCurrencyConverter = new SimpleCurrencyRatesProvider(new CurrencyRatesProviderAPIProvider());
         Assertions.assertNotNull(simpleCurrencyConverter.getExchangeRate("USD", "EUR"));
         Assertions.assertNotNull(simpleCurrencyConverter.getExchangeRate("EUR", "USD"));
-        Assertions.assertNotNull(simpleCurrencyConverter.getExchangeRate(" USD", "EUR"));
-        Assertions.assertNotNull(simpleCurrencyConverter.getExchangeRate("\nUSD", "EUR\r\n"));
     }
 }

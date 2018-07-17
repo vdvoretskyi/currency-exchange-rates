@@ -1,7 +1,6 @@
 package info.datamuse.currency.providers;
 
 
-import info.datamuse.currency.NotAvailableRateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +25,12 @@ class CurrencyRatesProviderAPIProviderTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("USD", ""));
         Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("", ""));
 
-        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD1", "EUR1"));
-        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD1", "EUR"));
-        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD", "EUR1"));
+//        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("SSS", "SSS"));
+//        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("AAA", "EUR"));
+//        Assertions.assertThrows(NotAvailableRateException.class, () -> provider.getExchangeRate("USD", "BBB"));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate(null, "EUR"));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate("USD", null));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> provider.getExchangeRate((String)null, (String)null));
+        Assertions.assertThrows(NullPointerException.class, () -> provider.getExchangeRate(null, "EUR"));
+        Assertions.assertThrows(NullPointerException.class, () -> provider.getExchangeRate("USD", null));
+        Assertions.assertThrows(NullPointerException.class, () -> provider.getExchangeRate((String)null, (String)null));
     }
 }

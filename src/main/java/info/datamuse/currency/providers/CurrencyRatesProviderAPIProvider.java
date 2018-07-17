@@ -11,8 +11,7 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 import java.net.URL;
 
-import static info.datamuse.currency.utils.CurrencyUtils.format;
-import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
+import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 
 public final class CurrencyRatesProviderAPIProvider implements CurrencyRatesProvider {
@@ -21,7 +20,8 @@ public final class CurrencyRatesProviderAPIProvider implements CurrencyRatesProv
 
     @Override
     public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
-        validateCurrencies(sourceCurrencyCode, targetCurrencyCode);
+        validateCurrencyCode(sourceCurrencyCode);
+        validateCurrencyCode(targetCurrencyCode);
 
         final String currencyPair = currencyPair(sourceCurrencyCode, targetCurrencyCode);
         final URL url = CURRENCY_CONVERTER_API_URL_TEMPLATE.buildWithQuery(
@@ -45,7 +45,7 @@ public final class CurrencyRatesProviderAPIProvider implements CurrencyRatesProv
     }
 
     private static String currencyPair(final String source, final String target) {
-        return format(source) + PAIR_SEPARATOR + format(target);
+        return source + PAIR_SEPARATOR + target;
     }
     private static final String PAIR_SEPARATOR = "_";
 }

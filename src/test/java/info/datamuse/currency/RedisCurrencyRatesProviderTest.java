@@ -54,10 +54,10 @@ class RedisCurrencyRatesProviderTest {
     }
 
     @Test
-    void convertLatest() {
+    void convertLatest() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
                 new RedisCurrencyRatesProvider(jedisPool, new CurrencyRatesProviderAPIProvider());
-        redisProviderCurrencyConverter.setExpirationTime(0);
+        redisProviderCurrencyConverter.setExpirationTime(1);
 
         final BigDecimal zeroRate = new BigDecimal(0.00);
         final RedisCurrencyRatesProvider redisPredefinedCurrencyConverter =
@@ -67,6 +67,8 @@ class RedisCurrencyRatesProviderTest {
             final BigDecimal rate1 = redisProviderCurrencyConverter.getExchangeRate("USD", "EUR");
             Assertions.assertNotNull(rate1, "Currency rate USD/EUR: " + rate1);
             Assertions.assertNotEquals(rate1, zeroRate);
+
+            Thread.sleep(1000);
 
             final BigDecimal rate3 = redisPredefinedCurrencyConverter.convert("USD", "EUR", true);
             Assertions.assertEquals(rate3, zeroRate);

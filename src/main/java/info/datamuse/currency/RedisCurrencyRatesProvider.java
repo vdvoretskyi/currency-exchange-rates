@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.function.Supplier;
 
-import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencies;
+import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 
 public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
 
@@ -42,7 +42,7 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     }
 
     public void setExpirationTime(final int expirationTime) {
-        if (expirationTime < 0) {
+        if (expirationTime <= 0) {
             throw new IllegalArgumentException("Expiration time should be positive");
         }
         this.expirationTime = expirationTime;
@@ -61,10 +61,11 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
         return convert(sourceCurrencyCode, targetCurrencyCode, false);
     }
 
-    public BigDecimal convert(final String sourceCurrency, final String targetCurrency, final boolean latest) {
-        validateCurrencies(sourceCurrency, targetCurrency);
+    public BigDecimal convert(final String sourceCurrencyCode, final String targetCurrencyCode, final boolean latest) {
+        validateCurrencyCode(sourceCurrencyCode);
+        validateCurrencyCode(targetCurrencyCode);
 
-        return evaluate(sourceCurrency, targetCurrency, () -> super.getExchangeRate(sourceCurrency, targetCurrency), latest);
+        return evaluate(sourceCurrencyCode, targetCurrencyCode, () -> super.getExchangeRate(sourceCurrencyCode, targetCurrencyCode), latest);
     }
 
     protected BigDecimal evaluate(final String sourceCurrency,
@@ -92,8 +93,7 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     }
 
     private void updateKeyValue(final Jedis jedis, final String key, final BigDecimal rate) {
-        jedis.set(key, rate.toString());
-        jedis.expire(key, expirationTime);
+        jedis.setex(key, expirationTime, rate.toString());
     }
 
     private void setExpiredListener(final String key, final Jedis jedis) {
