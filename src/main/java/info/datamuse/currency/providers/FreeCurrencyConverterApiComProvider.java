@@ -1,7 +1,7 @@
 package info.datamuse.currency.providers;
 
+import info.datamuse.currency.providers.http.HttpRequest;
 import info.datamuse.currency.providers.internal.AbstractCurrencyRatesProvider;
-import info.datamuse.currency.providers.http.JsonHttpRequest;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;
@@ -24,7 +24,7 @@ public final class FreeCurrencyConverterApiComProvider extends AbstractCurrencyR
             "https://free.currencyconverterapi.com/api/v5/convert?q=%s&compact=ultra",
             currencyPair
         );
-        final String apiResponseJsonString = new JsonHttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
+        final String apiResponseJsonString = new HttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
         return new JSONObject(apiResponseJsonString).getBigDecimal(currencyPair);
     }
 

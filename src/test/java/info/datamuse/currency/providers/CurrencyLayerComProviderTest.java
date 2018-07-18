@@ -1,6 +1,10 @@
 package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.Collection;
+import java.util.Set;
 
 public final class CurrencyLayerComProviderTest extends AbstractCurrencyRatesProviderTest {
 
@@ -9,6 +13,14 @@ public final class CurrencyLayerComProviderTest extends AbstractCurrencyRatesPro
     @Override
     protected CurrencyRatesProvider getCurrencyRatesProvider() {
         return new CurrencyLayerComProvider(TEST_API_KEY, false);
+    }
+
+    @Override
+    protected Collection<Pair<String, String>> getTestCurrencyPairs() {
+        return Set.of(
+            Pair.of("USD", "EUR"),
+            Pair.of("USD", "CHF")
+        );
     }
 
 }

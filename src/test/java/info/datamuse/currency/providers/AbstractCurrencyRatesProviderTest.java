@@ -2,10 +2,13 @@ package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Currency;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -18,12 +21,13 @@ public abstract class AbstractCurrencyRatesProviderTest {
 
     protected abstract CurrencyRatesProvider getCurrencyRatesProvider();
 
-    protected String getSourceCurrencyCode() {
-        return "USD";
-    }
-
-    protected String getTargetCurrencyCode() {
-        return "EUR";
+    protected Collection<Pair<String, String>> getTestCurrencyPairs() {
+        return Set.of(
+            Pair.of("EUR", "CHF"),
+            Pair.of("EUR", "USD"),
+            Pair.of("USD", "EUR"),
+            Pair.of("CHF", "EUR")
+        );
     }
 
     @Test
@@ -33,6 +37,8 @@ public abstract class AbstractCurrencyRatesProviderTest {
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("", "EUR"));
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("USD", ""));
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("", ""));
+        assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("EUR", "usd"));
+        assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("eur", "USD"));
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("E", "EUR"));
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("USD", "USDX"));
         assertThrows(IllegalArgumentException.class, () -> currencyRatesProvider.getExchangeRate("U?!", "UAH"));
@@ -51,29 +57,32 @@ public abstract class AbstractCurrencyRatesProviderTest {
     public void testGetExchangeRateByCurrencyCodes() {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
 
-        final BigDecimal exchangeRate = currencyRatesProvider.getExchangeRate(
-            getSourceCurrencyCode(),
-            getTargetCurrencyCode()
-        );
-        assertNotNull(exchangeRate);
-        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+        for (final var currencyPair : getTestCurrencyPairs()) {
+            final String sourceCurrencyCode = currencyPair.getLeft();
+            final String targetCurrencyCode = currencyPair.getRight();
 
-        assertThat(currencyRatesProvider.getExchangeRate(getSourceCurrencyCode(), getSourceCurrencyCode()), is(equalTo(BigDecimal.ONE)));
-        assertThat(currencyRatesProvider.getExchangeRate(getTargetCurrencyCode(), getTargetCurrencyCode()), is(equalTo(BigDecimal.ONE)));
+            final BigDecimal exchangeRate = currencyRatesProvider.getExchangeRate(sourceCurrencyCode, targetCurrencyCode);
+            assertNotNull(exchangeRate);
+            assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+            assertThat(currencyRatesProvider.getExchangeRate(sourceCurrencyCode, sourceCurrencyCode), is(equalTo(BigDecimal.ONE)));
+        }
     }
 
     @Test
     public void testGetExchangeRateByJavaUtilCurrency() {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
-        final BigDecimal exchangeRate = currencyRatesProvider.getExchangeRate(
-            Currency.getInstance(getSourceCurrencyCode()),
-            Currency.getInstance(getTargetCurrencyCode())
-        );
-        assertNotNull(exchangeRate);
-        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
 
-        assertThat(currencyRatesProvider.getExchangeRate(Currency.getInstance(getSourceCurrencyCode()), Currency.getInstance(getSourceCurrencyCode())), is(equalTo(BigDecimal.ONE)));
-        assertThat(currencyRatesProvider.getExchangeRate(Currency.getInstance(getTargetCurrencyCode()), Currency.getInstance(getTargetCurrencyCode())), is(equalTo(BigDecimal.ONE)));
+        for (final var currencyPair : getTestCurrencyPairs()) {
+            final String sourceCurrencyCode = currencyPair.getLeft();
+            final String targetCurrencyCode = currencyPair.getRight();
+
+            final BigDecimal exchangeRate = currencyRatesProvider.getExchangeRate(Currency.getInstance(sourceCurrencyCode), Currency.getInstance(targetCurrencyCode));
+            assertNotNull(exchangeRate);
+            assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+            assertThat(currencyRatesProvider.getExchangeRate(Currency.getInstance(sourceCurrencyCode), Currency.getInstance(sourceCurrencyCode)), is(equalTo(BigDecimal.ONE)));
+        }
     }
 
     @Test
