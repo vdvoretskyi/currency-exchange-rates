@@ -16,7 +16,7 @@ import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 /**
  * <a href="https://openexchangerates.org/">openexchangerates.org</a> rates provider.
  */
-public final class OpenExchangeRatesOrgProvider implements CurrencyRatesProvider {
+public final class OpenExchangeRatesOrgProvider extends AbstractCurrencyRatesProvider {
 
     private final String appId;
 
@@ -30,10 +30,7 @@ public final class OpenExchangeRatesOrgProvider implements CurrencyRatesProvider
     }
 
     @Override
-    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
-        validateCurrencyCode(sourceCurrencyCode);
-        validateCurrencyCode(targetCurrencyCode);
-
+    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
         final String liveRateApiUrl = String.format(
             Locale.ROOT,
             "https://openexchangerates.org/api/latest.json?app_id=%s&base=%s&symbols=%s",

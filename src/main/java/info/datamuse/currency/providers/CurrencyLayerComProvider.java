@@ -16,7 +16,7 @@ import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 /**
  * <a href="https://currencylayer.com/">currencylayer.com</a> rates provider.
  */
-public final class CurrencyLayerComProvider implements CurrencyRatesProvider {
+public final class CurrencyLayerComProvider extends AbstractCurrencyRatesProvider {
 
     private final String apiKey;
     private final boolean useHttps;
@@ -33,10 +33,7 @@ public final class CurrencyLayerComProvider implements CurrencyRatesProvider {
     }
 
     @Override
-    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
-        validateCurrencyCode(sourceCurrencyCode);
-        validateCurrencyCode(targetCurrencyCode);
-
+    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
         final String liveRateApiUrl = String.format(
             Locale.ROOT,
             "%s://apilayer.net/api/live?access_key=%s&source=%s&currencies=%s&format=1",

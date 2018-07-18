@@ -1,6 +1,5 @@
 package info.datamuse.currency.providers;
 
-import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
 import info.datamuse.currency.providers.http.HttpRequest;
 import info.datamuse.currency.providers.http.HttpResponse;
@@ -11,18 +10,14 @@ import org.json.JSONObject;
 import java.math.BigDecimal;
 import java.net.URL;
 
-import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 
-public final class CurrencyRatesProviderAPIProvider implements CurrencyRatesProvider {
+public final class CurrencyRatesProviderAPIProvider extends AbstractCurrencyRatesProvider {
 
     private static final URLTemplate CURRENCY_CONVERTER_API_URL_TEMPLATE = new URLTemplate("https://free.currencyconverterapi.com/api/v5/convert");
 
     @Override
-    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
-        validateCurrencyCode(sourceCurrencyCode);
-        validateCurrencyCode(targetCurrencyCode);
-
+    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
         final String currencyPair = currencyPair(sourceCurrencyCode, targetCurrencyCode);
         final URL url = CURRENCY_CONVERTER_API_URL_TEMPLATE.buildWithQuery(
                 "q=%s&compact=y", currencyPair);
