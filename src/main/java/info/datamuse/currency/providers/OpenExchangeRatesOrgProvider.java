@@ -1,7 +1,7 @@
 package info.datamuse.currency.providers;
 
-import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
+import info.datamuse.currency.providers.internal.AbstractCurrencyRatesProvider;
 import info.datamuse.currency.providers.http.HttpRequest;
 import org.json.JSONObject;
 
@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
-import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 
 /**

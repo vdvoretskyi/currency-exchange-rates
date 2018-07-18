@@ -1,4 +1,4 @@
-package info.datamuse.currency.providers;
+package info.datamuse.currency.providers.internal;
 
 import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 import static org.slf4j.LoggerFactory.getLogger;
 
-abstract class AbstractCurrencyRatesProvider implements CurrencyRatesProvider {
+public abstract class AbstractCurrencyRatesProvider implements CurrencyRatesProvider {
 
     private static final Logger logger = getLogger(AbstractCurrencyRatesProvider.class);
 

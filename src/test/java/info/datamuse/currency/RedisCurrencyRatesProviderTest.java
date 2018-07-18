@@ -1,6 +1,6 @@
 package info.datamuse.currency;
 
-import info.datamuse.currency.providers.CurrencyRatesProviderAPIProvider;
+import info.datamuse.currency.providers.FreeCurrencyConverterApiComProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.JedisPool;
@@ -30,7 +30,7 @@ class RedisCurrencyRatesProviderTest {
     @Test
     void convertSuccess() {
         final RedisCurrencyRatesProvider redisCurrencyConverter =
-                new RedisCurrencyRatesProvider(jedisPool, new CurrencyRatesProviderAPIProvider());
+                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider());
 
         try {
             final BigDecimal rate1 = redisCurrencyConverter.getExchangeRate("USD", "EUR");
@@ -56,7 +56,7 @@ class RedisCurrencyRatesProviderTest {
     @Test
     void convertLatest() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
-                new RedisCurrencyRatesProvider(jedisPool, new CurrencyRatesProviderAPIProvider());
+                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider());
         redisProviderCurrencyConverter.setExpirationTime(1);
 
         final BigDecimal zeroRate = new BigDecimal(0.00);
@@ -83,7 +83,7 @@ class RedisCurrencyRatesProviderTest {
     @Test
     void convertAutoUpdate() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
-                new RedisCurrencyRatesProvider(jedisPool, new CurrencyRatesProviderAPIProvider(), true);
+                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), true);
         redisProviderCurrencyConverter.setExpirationTime(1);
         final BigDecimal rate1 = redisProviderCurrencyConverter.convert("USD", "EUR", true);
         Assertions.assertNotNull(rate1, "Currency rate USD/EUR: " + rate1);
