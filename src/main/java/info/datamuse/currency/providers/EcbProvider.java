@@ -35,7 +35,7 @@ import static info.datamuse.currency.utils.HttpUtils.HTTP_METHOD_GET;
 public final class EcbProvider extends AbstractCurrencyRatesProvider {
 
     private static final String EUR_CURRENCY_CODE = "EUR";
-    private static final MathContext CURRENCY_RATE_INVERSION_MATH_CONTEXT = new MathContext(8, RoundingMode.UP); // TODO: inversion rate!!!!
+    private static final MathContext CURRENCY_RATE_INVERSION_MATH_CONTEXT = new MathContext(8, RoundingMode.UP);
     private static QName ECB_CUBE_ELEMENT_QNAME = new QName("http://www.ecb.int/vocabulary/2002-08-01/eurofxref", "Cube");
     private static QName ECB_CURRENCY_ATTRIBUTE_QNAME = new QName("", "currency");
     private static QName ECB_RATE_ATTRIBUTE_QNAME = new QName("", "rate");
@@ -49,7 +49,7 @@ public final class EcbProvider extends AbstractCurrencyRatesProvider {
             return getEurToTargetCurrencyExchangeRate(targetCurrencyCode);
         } else if (targetCurrencyCode.equals(EUR_CURRENCY_CODE)) {
             // Note: we assume the EUR-to-CUR-rate is never zero. Otherwise, an (arithmetic) exception is wanted.
-            return BigDecimal.ONE.divide(getEurToTargetCurrencyExchangeRate(targetCurrencyCode), CURRENCY_RATE_INVERSION_MATH_CONTEXT);
+            return BigDecimal.ONE.divide(getEurToTargetCurrencyExchangeRate(sourceCurrencyCode), CURRENCY_RATE_INVERSION_MATH_CONTEXT);
         } else {
             throw new NotAvailableRateException(String.format(Locale.ROOT,
                 "{} only supports conversions from/to {}. Conversion from {} to {} is not supported",
