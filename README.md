@@ -11,6 +11,7 @@ The library also implements multiple ways of _caching_ currency exchange rates f
 
 ## Supported providers
 
+* [European Central Bank](https://www.ecb.europa.eu/)
 * [currencylayer.com](https://currencylayer.com/)
 * [currencyconverterapi.com](https://currencyconverterapi.com)
 * [openexchangerates.org](https://openexchangerates.org)
@@ -36,6 +37,8 @@ For example, you may configure a provider with some API key as a fallback for th
 * **Precision** — Some existing utilities work with "base currencies" and do conversions in two steps: convert source currency to the base currency, then the base currency to target currency.
 Such implementation may produce inaccurate or wrong results, so this library doesn't do this.
 All conversions are performed directly in one step.
+
+* **Minimal dependencies** — the library has very few dependencies on third-party libraries, to avoid dependency conflicts for the users.
 
 
 ## Authors and contributors
