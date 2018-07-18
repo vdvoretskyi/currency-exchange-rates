@@ -1,6 +1,7 @@
 package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
+import info.datamuse.currency.NotAvailableRateException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -66,6 +67,23 @@ public abstract class AbstractCurrencyRatesProviderTest {
         );
         assertNotNull(exchangeRate);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+    }
+
+    @Test
+    public void testGetExchangeRateForNonExistingCurrencies() {
+        final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
+        assertThrows(
+            NotAvailableRateException.class,
+            () -> currencyRatesProvider.getExchangeRate("WAT", "USD")
+        );
+        assertThrows(
+            NotAvailableRateException.class,
+            () -> currencyRatesProvider.getExchangeRate("EUR", "KOT")
+        );
+        assertThrows(
+            NotAvailableRateException.class,
+            () -> currencyRatesProvider.getExchangeRate("WAT", "KOT")
+        );
     }
 
 }
