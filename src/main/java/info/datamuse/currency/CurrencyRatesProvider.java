@@ -8,7 +8,8 @@ public interface CurrencyRatesProvider {
 
     BigDecimal getExchangeRate(String sourceCurrencyCode, String targetCurrencyCode);
 
-    default BigDecimal getExchangeRate(Currency sourceCurrency, Currency targetCurrency) {
+    default BigDecimal getExchangeRate(final Currency sourceCurrency, final Currency targetCurrency) {
         return getExchangeRate(sourceCurrency.getCurrencyCode(), targetCurrency.getCurrencyCode());
     }
+
 }
