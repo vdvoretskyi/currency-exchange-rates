@@ -1,6 +1,7 @@
 package info.datamuse.currency.providers;
 
 
+import info.datamuse.currency.CurrencyRatesProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +9,7 @@ import java.math.BigDecimal;
 
 class CurrencyRatesProviderAPIProviderTest {
 
-    private final static CurrencyRatesProviderAPIProvider provider = new CurrencyRatesProviderAPIProvider();
+    private final static CurrencyRatesProvider provider = new CurrencyRatesProviderAPIProvider();
 
     @Test
     void convertSuccess() {

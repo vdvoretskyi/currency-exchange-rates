@@ -9,7 +9,10 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>Currency Exchange Rates library</name>
-    <description></description>
+    <description>
+        Implements fetching currency exchange rates from different providers,
+        as well as caching the fetched rates for quick retrieval.
+    </description>
 
     <organization>
         <name>Datamuse</name>
@@ -18,20 +21,6 @@
 
     <packaging>jar</packaging>
 
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -39,22 +28,20 @@
         <maven.version>3.5.3</maven.version>
         <java.version>10</java.version>
 
-        <org.json.version>20180130</org.json.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
-
+        <org.json.version>20180130</org.json.version>
         <jedis.version>2.9.0</jedis.version>
 
         <junit.jupiter.version>5.2.0</junit.jupiter.version>
+        <logback.version>1.2.3</logback.version>
 
         <maven.cleanPlugin.version>3.0.0</maven.cleanPlugin.version>
+        <maven.enforcerPlugin.version>3.0.0-M1</maven.enforcerPlugin.version>
         <maven.compilerPlugin.version>3.7.0</maven.compilerPlugin.version>
         <maven.resourcesPlugin.version>3.0.2</maven.resourcesPlugin.version>
-        <maven.jarPlugin.version>3.0.2</maven.jarPlugin.version>
-        <maven.enforcerPlugin.version>3.0.0-M1</maven.enforcerPlugin.version>
         <maven.surefirePlugin.version>2.22.0</maven.surefirePlugin.version>
+        <maven.jarPlugin.version>3.0.2</maven.jarPlugin.version>
     </properties>
-
 
     <dependencies>
         <dependency>
@@ -62,13 +49,11 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${org.json.version}</version>
         </dependency>
-
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
@@ -88,13 +73,6 @@
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -104,7 +82,6 @@
     </dependencies>
 
     <build>
-
         <plugins>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
@@ -127,31 +104,16 @@
                                 <requireJavaVersion>
                                     <version>${java.version}</version>
                                 </requireJavaVersion>
-                                <requireReleaseDeps>
-                                    <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
-                                    <searchTransitive>true</searchTransitive>
-                                    <onlyWhenRelease>false</onlyWhenRelease>
-                                    <excludes>
-                                        <exclude>info.datamuse.currency:*</exclude>
-                                        <exclude>info.datamuse.currency.*:*</exclude>
-                                    </excludes>
-                                </requireReleaseDeps>
+                                <requirePluginVersions/>
+                                <requireReleaseDeps/>
                                 <dependencyConvergence/>
                                 <requireUpperBoundDeps/>
-                                <reactorModuleConvergence/>
                                 <banDistributionManagement/>
                                 <banDuplicatePomDependencyVersions/>
                             </rules>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>${maven.resourcesPlugin.version}</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -171,11 +133,12 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jarPlugin.version}</version>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven.resourcesPlugin.version}</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
             </plugin>
-
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefirePlugin.version}</version>
@@ -184,9 +147,12 @@
                         <include>**/*Test.java</include>
                     </includes>
                     <runOrder>random</runOrder>
-                    <enableAssertions>true</enableAssertions>
-                    <argLine>-Xmx1024m</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven.jarPlugin.version}</version>
             </plugin>
         </plugins>
     </build>
