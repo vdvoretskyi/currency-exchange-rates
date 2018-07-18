@@ -16,3 +16,8 @@ The library also implements multiple ways of _caching_ currency exchange rates f
 ## Usage
 
 TODO:
+
+## Supported providers
+
+* [currencylayer.com](https://currencylayer.com/)
+* [currencyconverterapi.com](https://currencyconverterapi.com)
