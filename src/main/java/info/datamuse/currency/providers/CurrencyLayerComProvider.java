@@ -33,24 +33,20 @@ public final class CurrencyLayerComProvider extends AbstractCurrencyRatesProvide
     }
 
     @Override
-    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
+    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) throws MalformedURLException {
         final String liveRateApiUrl = String.format(
             Locale.ROOT,
             "%s://apilayer.net/api/live?access_key=%s&source=%s&currencies=%s&format=1",
             useHttps ? "https" : "http", apiKey, sourceCurrencyCode, targetCurrencyCode
         );
 
-        try {
-            final String apiResponseJsonString = new HttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
-            final JSONObject apiResponseJson = new JSONObject(apiResponseJsonString);
+        final String apiResponseJsonString = new HttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
+        final JSONObject apiResponseJson = new JSONObject(apiResponseJsonString);
 
-            if (!apiResponseJson.getBoolean("success")) {
-                throw new NotAvailableRateException(String.format(Locale.ROOT, "`success` flag is false; request=%s, response=%s", liveRateApiUrl, apiResponseJsonString));
-            }
-            return apiResponseJson.getJSONObject("quotes").getBigDecimal(sourceCurrencyCode + targetCurrencyCode);
-        } catch (final MalformedURLException | RuntimeException e) {
-            throw new NotAvailableRateException(e);
+        if (!apiResponseJson.getBoolean("success")) {
+            throw new NotAvailableRateException(String.format(Locale.ROOT, "`success` flag is false; request=%s, response=%s", liveRateApiUrl, apiResponseJsonString));
         }
+        return apiResponseJson.getJSONObject("quotes").getBigDecimal(sourceCurrencyCode + targetCurrencyCode);
     }
 
 }

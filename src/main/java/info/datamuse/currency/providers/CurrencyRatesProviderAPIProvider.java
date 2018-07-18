@@ -1,7 +1,5 @@
 package info.datamuse.currency.providers;
 
-import info.datamuse.currency.NotAvailableRateException;
-import info.datamuse.currency.providers.http.HttpRequest;
 import info.datamuse.currency.providers.http.HttpResponse;
 import info.datamuse.currency.providers.http.JsonHttpRequest;
 import info.datamuse.currency.providers.http.URLTemplate;
@@ -21,13 +19,8 @@ public final class CurrencyRatesProviderAPIProvider extends AbstractCurrencyRate
         final String currencyPair = currencyPair(sourceCurrencyCode, targetCurrencyCode);
         final URL url = CURRENCY_CONVERTER_API_URL_TEMPLATE.buildWithQuery(
                 "q=%s&compact=y", currencyPair);
-        final HttpRequest httpRequest = new JsonHttpRequest(url, HTTP_METHOD_GET);
-        try {
-            final HttpResponse httpResponse = httpRequest.send();
-            return parseResponse(httpResponse, currencyPair);
-        } catch(final RuntimeException e) {
-            throw new NotAvailableRateException(e);
-        }
+        final HttpResponse httpResponse = new JsonHttpRequest(url, HTTP_METHOD_GET).send();
+        return parseResponse(httpResponse, currencyPair);
     }
 
     private BigDecimal parseResponse(final HttpResponse httpResponse, final String currencyPair) {

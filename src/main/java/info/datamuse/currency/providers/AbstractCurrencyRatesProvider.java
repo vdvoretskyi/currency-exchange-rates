@@ -1,6 +1,7 @@
 package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
+import info.datamuse.currency.NotAvailableRateException;
 import org.slf4j.Logger;
 
 import java.math.BigDecimal;
@@ -17,15 +18,26 @@ abstract class AbstractCurrencyRatesProvider implements CurrencyRatesProvider {
         validateCurrencyCode(sourceCurrencyCode);
         validateCurrencyCode(targetCurrencyCode);
 
-        final BigDecimal exchangeRate = doGetExchangeRate(sourceCurrencyCode, targetCurrencyCode);
+        if (sourceCurrencyCode.equals(targetCurrencyCode)) {
+            return BigDecimal.ONE;
+        }
+
+        final BigDecimal exchangeRate;
+        try {
+            exchangeRate = doGetExchangeRate(sourceCurrencyCode, targetCurrencyCode);
+        } catch (final NotAvailableRateException e) {
+            throw e;
+        } catch (final Exception e) {
+            throw new NotAvailableRateException(e);
+        }
+
         logger.info(
             "Fetched currency exchange rate: sourceCurrencyCode={}, targetCurrencyCode={}, exchangeRate={}",
             sourceCurrencyCode, targetCurrencyCode, exchangeRate
         );
-
         return exchangeRate;
     }
 
-    protected abstract BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode);
+    protected abstract BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) throws Exception;
 
 }

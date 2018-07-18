@@ -30,27 +30,23 @@ public final class OpenExchangeRatesOrgProvider extends AbstractCurrencyRatesPro
     }
 
     @Override
-    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
+    protected BigDecimal doGetExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) throws MalformedURLException {
         final String liveRateApiUrl = String.format(
             Locale.ROOT,
             "https://openexchangerates.org/api/latest.json?app_id=%s&base=%s&symbols=%s",
             appId, sourceCurrencyCode, targetCurrencyCode
         );
 
-        try {
-            final String apiResponseJsonString = new HttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
-            final JSONObject apiResponseJson = new JSONObject(apiResponseJsonString);
+        final String apiResponseJsonString = new HttpRequest(new URL(liveRateApiUrl), HTTP_METHOD_GET).send().getBodyAsString();
+        final JSONObject apiResponseJson = new JSONObject(apiResponseJsonString);
 
-            if (!apiResponseJson.getString("base").equals(sourceCurrencyCode)) {
-                throw new NotAvailableRateException(String.format(Locale.ROOT,
-                    "Base currency in the response doesn't match the requested source currency; request=%s, response=%s",
-                    liveRateApiUrl, apiResponseJsonString
-                ));
-            }
-            return apiResponseJson.getJSONObject("rates").getBigDecimal(targetCurrencyCode);
-        } catch (final MalformedURLException | RuntimeException e) {
-            throw new NotAvailableRateException(e);
+        if (!apiResponseJson.getString("base").equals(sourceCurrencyCode)) {
+            throw new NotAvailableRateException(String.format(Locale.ROOT,
+                "Base currency in the response doesn't match the requested source currency; request=%s, response=%s",
+                liveRateApiUrl, apiResponseJsonString
+            ));
         }
+        return apiResponseJson.getJSONObject("rates").getBigDecimal(targetCurrencyCode);
     }
 
 }

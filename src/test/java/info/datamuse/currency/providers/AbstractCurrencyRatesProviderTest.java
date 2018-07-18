@@ -2,13 +2,13 @@ package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.Currency;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -50,12 +50,16 @@ public abstract class AbstractCurrencyRatesProviderTest {
     @Test
     public void testGetExchangeRateByCurrencyCodes() {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
+
         final BigDecimal exchangeRate = currencyRatesProvider.getExchangeRate(
             getSourceCurrencyCode(),
             getTargetCurrencyCode()
         );
         assertNotNull(exchangeRate);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+        assertThat(currencyRatesProvider.getExchangeRate(getSourceCurrencyCode(), getSourceCurrencyCode()), is(equalTo(BigDecimal.ONE)));
+        assertThat(currencyRatesProvider.getExchangeRate(getTargetCurrencyCode(), getTargetCurrencyCode()), is(equalTo(BigDecimal.ONE)));
     }
 
     @Test
@@ -67,6 +71,9 @@ public abstract class AbstractCurrencyRatesProviderTest {
         );
         assertNotNull(exchangeRate);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+        assertThat(currencyRatesProvider.getExchangeRate(Currency.getInstance(getSourceCurrencyCode()), Currency.getInstance(getSourceCurrencyCode())), is(equalTo(BigDecimal.ONE)));
+        assertThat(currencyRatesProvider.getExchangeRate(Currency.getInstance(getTargetCurrencyCode()), Currency.getInstance(getTargetCurrencyCode())), is(equalTo(BigDecimal.ONE)));
     }
 
     @Test
@@ -74,15 +81,15 @@ public abstract class AbstractCurrencyRatesProviderTest {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
         assertThrows(
             NotAvailableRateException.class,
-            () -> currencyRatesProvider.getExchangeRate("WAT", "USD")
+            () -> currencyRatesProvider.getExchangeRate("KOT", "USD")
         );
         assertThrows(
             NotAvailableRateException.class,
-            () -> currencyRatesProvider.getExchangeRate("EUR", "KOT")
+            () -> currencyRatesProvider.getExchangeRate("EUR", "BYK")
         );
         assertThrows(
             NotAvailableRateException.class,
-            () -> currencyRatesProvider.getExchangeRate("WAT", "KOT")
+            () -> currencyRatesProvider.getExchangeRate("KOT", "BYK")
         );
     }
 
