@@ -33,7 +33,9 @@
         <jedis.version>2.9.0</jedis.version>
 
         <junit.jupiter.version>5.2.0</junit.jupiter.version>
+        <hamcrest.version>2.0.0.0</hamcrest.version>
         <logback.version>1.2.3</logback.version>
+        <apache.commons.lang3.version>3.7</apache.commons.lang3.version>
 
         <maven.cleanPlugin.version>3.0.0</maven.cleanPlugin.version>
         <maven.enforcerPlugin.version>3.0.0-M1</maven.enforcerPlugin.version>
@@ -74,9 +76,21 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${apache.commons.lang3.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
