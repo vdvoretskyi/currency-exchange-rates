@@ -2,7 +2,7 @@ package info.datamuse.currency.providers;
 
 import info.datamuse.currency.NotAvailableRateException;
 import info.datamuse.currency.providers.internal.AbstractCurrencyRatesProvider;
-import info.datamuse.currency.providers.http.HttpRequest;
+import info.datamuse.currency.utils.http.HttpRequest;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;

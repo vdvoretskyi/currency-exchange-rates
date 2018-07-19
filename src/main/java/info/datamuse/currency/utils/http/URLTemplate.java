@@ -1,4 +1,4 @@
-package info.datamuse.currency.providers.http;
+package info.datamuse.currency.utils.http;
 
 import java.net.MalformedURLException;
 import java.net.URL;
