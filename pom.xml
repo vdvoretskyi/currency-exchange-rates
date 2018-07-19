@@ -26,7 +26,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.version>3.5.3</maven.version>
-        <java.version>10</java.version>
+        <java.source.version>1.8</java.source.version>
+        <java.target.version>1.8</java.target.version>
 
         <slf4j.version>1.7.25</slf4j.version>
         <org.json.version>20180130</org.json.version>
@@ -43,6 +44,9 @@
         <maven.resourcesPlugin.version>3.0.2</maven.resourcesPlugin.version>
         <maven.surefirePlugin.version>2.22.0</maven.surefirePlugin.version>
         <maven.jarPlugin.version>3.0.2</maven.jarPlugin.version>
+        <maven.installPlugin.version>2.5.2</maven.installPlugin.version>
+        <maven.sitePlugin.version>3.7.1</maven.sitePlugin.version>
+        <maven.deployPlugin.version>2.8.2</maven.deployPlugin.version>
     </properties>
 
     <dependencies>
@@ -134,13 +138,14 @@
                 <version>${maven.compilerPlugin.version}</version>
                 <configuration>
                     <encoding>${project.build.sourceEncoding}</encoding>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>${java.source.version}</source>
+                    <target>${java.target.version}</target>
                     <debug>false</debug>
                     <optimize>true</optimize>
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                     <compilerArgs>
+                        <arg>-Xlint:-options</arg>
                         <arg>-Xlint:all</arg>
                         <arg>-Werror</arg>
                     </compilerArgs>
@@ -167,6 +172,21 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>${maven.jarPlugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${maven.installPlugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.sitePlugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.deployPlugin.version}</version>
             </plugin>
         </plugins>
     </build>

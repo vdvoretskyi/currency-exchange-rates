@@ -8,12 +8,11 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,12 +21,12 @@ public abstract class AbstractCurrencyRatesProviderTest {
     protected abstract CurrencyRatesProvider getCurrencyRatesProvider();
 
     protected Collection<Pair<String, String>> getTestCurrencyPairs() {
-        return Set.of(
-            Pair.of("EUR", "CHF"),
-            Pair.of("EUR", "USD"),
-            Pair.of("USD", "EUR"),
-            Pair.of("CHF", "EUR")
-        );
+        final Set<Pair<String, String>> currencyPairSet = new HashSet<>();
+        currencyPairSet.add(Pair.of("EUR", "CHF"));
+        currencyPairSet.add(Pair.of("EUR", "USD"));
+        currencyPairSet.add(Pair.of("USD", "EUR"));
+        currencyPairSet.add(Pair.of("CHF", "EUR"));
+        return currencyPairSet;
     }
 
     @Test
@@ -57,7 +56,7 @@ public abstract class AbstractCurrencyRatesProviderTest {
     public void testGetExchangeRateByCurrencyCodes() {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
 
-        for (final var currencyPair : getTestCurrencyPairs()) {
+        for (final Pair<String, String> currencyPair : getTestCurrencyPairs()) {
             final String sourceCurrencyCode = currencyPair.getLeft();
             final String targetCurrencyCode = currencyPair.getRight();
 
@@ -73,7 +72,7 @@ public abstract class AbstractCurrencyRatesProviderTest {
     public void testGetExchangeRateByJavaUtilCurrency() {
         final CurrencyRatesProvider currencyRatesProvider = getCurrencyRatesProvider();
 
-        for (final var currencyPair : getTestCurrencyPairs()) {
+        for (final Pair<String, String> currencyPair : getTestCurrencyPairs()) {
             final String sourceCurrencyCode = currencyPair.getLeft();
             final String targetCurrencyCode = currencyPair.getRight();
 
