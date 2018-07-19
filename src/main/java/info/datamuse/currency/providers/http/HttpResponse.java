@@ -43,7 +43,7 @@ public class HttpResponse {
             } catch(Exception e) {
                 logger.debug("Couldn't get more detailed error information");
             }
-            throw new RuntimeException(String.format("Insight Server returned an error code: %s. %s", this.responseCode, response));
+            throw new RuntimeException(String.format("Server returned an error code: %s. %s", this.responseCode, response));
         }
         logger.debug(this.toString());
     }
@@ -55,24 +55,18 @@ public class HttpResponse {
     public String getBodyAsString() {
         final InputStream bodyStream = this.getBody();
         final InputStreamReader reader = new InputStreamReader(bodyStream, UTF_8);
-        final StringBuilder builder = new StringBuilder();
-        final char[] buffer = new char[BUFFER_SIZE];
+        final String bodyAsString;
 
         try {
-            int read = reader.read(buffer, 0, BUFFER_SIZE);
-            while (read != -1) {
-                builder.append(buffer, 0, read);
-                read = reader.read(buffer, 0, BUFFER_SIZE);
-            }
-
+            bodyAsString = IOUtils.toString(reader);
             this.disconnect();
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't connect to Insight Server due to a network error.", e);
+            throw new RuntimeException("Couldn't connect due to a network error.", e);
         }  finally {
             IOUtils.closeQuietly(reader);
         }
 
-        return builder.toString();
+        return bodyAsString;
     }
 
     public InputStream getBody() {
@@ -99,15 +93,10 @@ public class HttpResponse {
         }
 
         final InputStreamReader reader = new InputStreamReader(stream, UTF_8);
-        final StringBuilder builder = new StringBuilder();
-        final char[] buffer = new char[BUFFER_SIZE];
+        final String error;
 
         try {
-            int read = reader.read(buffer, 0, BUFFER_SIZE);
-            while (read != -1) {
-                builder.append(buffer, 0, read);
-                read = reader.read(buffer, 0, BUFFER_SIZE);
-            }
+            error = IOUtils.toString(reader);
 
         } catch (IOException e) {
             return null;
@@ -116,7 +105,7 @@ public class HttpResponse {
             IOUtils.closeQuietly(reader);
         }
 
-        return builder.toString();
+        return error;
     }
 
     public void disconnect() {
@@ -131,7 +120,7 @@ public class HttpResponse {
 
             byte[] buffer = new byte[BUFFER_SIZE];
             int n = this.inputStream.read(buffer);
-            while (n != -1) {
+            while (n != IOUtils.EOF) {
                 n = this.inputStream.read(buffer);
             }
             this.inputStream.close();

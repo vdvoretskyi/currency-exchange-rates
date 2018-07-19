@@ -70,13 +70,9 @@ public class HttpRequest {
         OutputStream output = null;
         try {
             output = connection.getOutputStream();
-            int b = this.body.read();
-            while (b != -1) {
-                output.write(b);
-                b = this.body.read();
-            }
+            IOUtils.copy(body, output);
         } catch (IOException e) {
-            throw new RuntimeException("Couldn't connect to Insight Server due to a network error.", e);
+            throw new RuntimeException("Couldn't connect due to a network error.", e);
         } finally {
             IOUtils.closeQuietly(output);
         }
