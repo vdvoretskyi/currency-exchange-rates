@@ -6,7 +6,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 import java.util.function.Supplier;
 
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
@@ -22,22 +21,27 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     protected Thread updateKeysOnExpirationThread;
     protected Jedis jedisPubSub;
 
+    public static final String DEFAULT_REDIS_KEY_PREFIX = "currency:exchange:rates";
+    private final String keyPrefix;
+
     private static final Logger logger = LoggerFactory.getLogger(RedisCurrencyRatesProvider.class);
 
     public RedisCurrencyRatesProvider(final JedisPool jedisPool,
                                       final CurrencyRatesProvider converterProvider) {
-        this(jedisPool, converterProvider, false);
+        this(jedisPool, converterProvider, DEFAULT_REDIS_KEY_PREFIX,false);
     }
 
     public RedisCurrencyRatesProvider(final JedisPool jedisPool,
                                       final CurrencyRatesProvider converterProvider,
+                                      final String redisKeyPrefix,
                                       final boolean autoUpdate) {
         super(converterProvider);
         this.jedisPool = jedisPool;
+        this.keyPrefix = redisKeyPrefix;
         this.autoUpdate = autoUpdate;
         if (autoUpdate) {
             jedisPubSub = jedisPool.getResource();
-            setExpiredListener(REDIS_CURRENCY_KEYSPACE_MESSAGE_PATTERN, jedisPubSub);
+            setExpiredListener(keySpaceMessagePattern(keyPrefix), jedisPubSub);
         }
     }
 
@@ -102,7 +106,7 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
                 logger.info("Subscribing to \"commonChannel\". This thread will be blocked.");
                 jedis.configSet("notify-keyspace-events", "KEA");
                 logger.info("SET notify-keyspace-events=KEA");
-                jedis.psubscribe(new RedisKeyExpiredListener((sourceCurrency, targetCurrency) -> convert(sourceCurrency, targetCurrency, true)), key);
+                jedis.psubscribe(new RedisKeyExpiredListener(keyPrefix, (sourceCurrencyCode, targetCurrencyCode) -> convert(sourceCurrencyCode, targetCurrencyCode, true)), key);
                 logger.info("Subscription ended.");
             } catch(final RuntimeException e) {
                 logger.error("Subscribing failed.", e);
@@ -120,11 +124,21 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
         }
     }
 
-    private static String uniquePairKey(final String sourceCurrency, final String targetCurrency) {
-        return String.format(REDIS_CURRENCY_KEY_TEMPLATE, sourceCurrency + REDIS_CURRENCY_KEY_SPLITTER + targetCurrency);
+    private String uniquePairKey(final String sourceCurrencyCode, final String targetCurrencyCode) {
+        return keyPrefix
+                + REDIS_NAMESPACE_DELIMITER
+                + sourceCurrencyCode
+                + CURRENCY_PAIR_SPLITTER
+                + targetCurrencyCode;
     }
-    static final String REDIS_CURRENCY_KEY_SPLITTER = "_";
-    static final String REDIS_CURRENCY_KEY_TEMPLATE = "currency/converter/%s/rate";
-    private static final String REDIS_CURRENCY_KEYSPACE_MESSAGE_PATTERN = "__keyspace*__:" + String.format(Locale.ROOT,
-            REDIS_CURRENCY_KEY_TEMPLATE, "*");
+    static final String REDIS_NAMESPACE_DELIMITER = ":";
+    static final String CURRENCY_PAIR_SPLITTER = "_";
+
+    private static String keySpaceMessagePattern(final String keyPrefix) {
+        return REDIS_KEYSPACE_PREFIX
+                + keyPrefix
+                + REDIS_NAMESPACE_DELIMITER
+                + '*';
+    }
+    private static final String REDIS_KEYSPACE_PREFIX = "__keyspace*__:";
 }

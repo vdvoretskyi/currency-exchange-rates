@@ -4,23 +4,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPubSub;
 
-import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static info.datamuse.currency.RedisCurrencyRatesProvider.REDIS_CURRENCY_KEY_SPLITTER;
-import static info.datamuse.currency.RedisCurrencyRatesProvider.REDIS_CURRENCY_KEY_TEMPLATE;
+import static info.datamuse.currency.RedisCurrencyRatesProvider.CURRENCY_PAIR_SPLITTER;
+import static info.datamuse.currency.RedisCurrencyRatesProvider.REDIS_NAMESPACE_DELIMITER;
 
 class RedisKeyExpiredListener extends JedisPubSub {
     private static final Logger logger = LoggerFactory.getLogger(RedisKeyExpiredListener.class);
 
     private final BiConsumer<String, String> keyEvalCallback;
+    private final Pattern keyCurrencyPairPattern;
 
-    private static final Pattern keyCurrencyPairPattern = Pattern.compile(".*" + String.format(Locale.ROOT, REDIS_CURRENCY_KEY_TEMPLATE, "([^/]*)"));
-
-    RedisKeyExpiredListener(final BiConsumer<String, String> keyEvalCallback) {
+    RedisKeyExpiredListener(final String prefixName, final BiConsumer<String, String> keyEvalCallback) {
         this.keyEvalCallback = keyEvalCallback;
+        keyCurrencyPairPattern = Pattern.compile(".*"
+                + REDIS_NAMESPACE_DELIMITER
+                + prefixName
+                + REDIS_NAMESPACE_DELIMITER
+                + "([^" + REDIS_NAMESPACE_DELIMITER + "]*)");
     }
 
     @Override
@@ -46,6 +49,6 @@ class RedisKeyExpiredListener extends JedisPubSub {
     }
 
     private static String[] currencies(final String pairKey) {
-        return pairKey.split(REDIS_CURRENCY_KEY_SPLITTER);
+        return pairKey.split(CURRENCY_PAIR_SPLITTER);
     }
 }

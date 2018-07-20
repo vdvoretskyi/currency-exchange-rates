@@ -4,7 +4,6 @@ import info.datamuse.currency.CurrencyRatesProvider;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
-import java.util.Set;
 
 public final class EcbProviderTest extends AbstractCurrencyRatesProviderTest {
 
@@ -15,7 +14,7 @@ public final class EcbProviderTest extends AbstractCurrencyRatesProviderTest {
 
     @Override
     protected Collection<Pair<String, String>> getTestCurrencyPairs() {
-        return Set.of(
+        return getTestCurrencyPairSet(
             Pair.of("EUR", "CHF"),
             Pair.of("EUR", "USD"),
             Pair.of("CHF", "EUR"),

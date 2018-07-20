@@ -4,7 +4,6 @@ import info.datamuse.currency.CurrencyRatesProvider;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
-import java.util.Set;
 
 public final class OpenExchangeRatesOrgProviderTest extends AbstractCurrencyRatesProviderTest {
 
@@ -17,7 +16,7 @@ public final class OpenExchangeRatesOrgProviderTest extends AbstractCurrencyRate
 
     @Override
     protected Collection<Pair<String, String>> getTestCurrencyPairs() {
-        return Set.of(
+        return getTestCurrencyPairSet(
             Pair.of("USD", "EUR"),
             Pair.of("USD", "CHF")
         );

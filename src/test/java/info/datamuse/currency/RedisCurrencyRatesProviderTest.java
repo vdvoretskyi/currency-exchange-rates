@@ -9,6 +9,11 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.math.BigDecimal;
 import java.time.Duration;
 
+import static info.datamuse.currency.RedisCurrencyRatesProvider.DEFAULT_REDIS_KEY_PREFIX;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+
 class RedisCurrencyRatesProviderTest {
 
     private static JedisPoolConfig buildPoolConfig() {
@@ -83,10 +88,25 @@ class RedisCurrencyRatesProviderTest {
     @Test
     void convertAutoUpdate() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
-                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), true);
+                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), DEFAULT_REDIS_KEY_PREFIX,true);
         redisProviderCurrencyConverter.setExpirationTime(1);
-        final BigDecimal rate1 = redisProviderCurrencyConverter.convert("USD", "EUR", true);
-        Assertions.assertNotNull(rate1, "Currency rate USD/EUR: " + rate1);
-        //TODO:
+        BigDecimal exchangeRate = redisProviderCurrencyConverter.convert("USD", "EUR", false);
+        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+        Thread.sleep(1000);
+
+        exchangeRate = redisProviderCurrencyConverter.convert("USD", "EUR", true);
+        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+        final RedisCurrencyRatesProvider redisProviderCurrencyConverter1 =
+                new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), "currency/exchange/rates",true);
+        redisProviderCurrencyConverter1.setExpirationTime(1);
+        exchangeRate = redisProviderCurrencyConverter1.convert("USD", "EUR", false);
+        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
+
+        Thread.sleep(1000);
+
+        exchangeRate = redisProviderCurrencyConverter1.convert("USD", "EUR", false);
+        assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
     }
 }

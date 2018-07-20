@@ -21,12 +21,11 @@ public abstract class AbstractCurrencyRatesProviderTest {
     protected abstract CurrencyRatesProvider getCurrencyRatesProvider();
 
     protected Collection<Pair<String, String>> getTestCurrencyPairs() {
-        final Set<Pair<String, String>> currencyPairSet = new HashSet<>();
-        currencyPairSet.add(Pair.of("EUR", "CHF"));
-        currencyPairSet.add(Pair.of("EUR", "USD"));
-        currencyPairSet.add(Pair.of("USD", "EUR"));
-        currencyPairSet.add(Pair.of("CHF", "EUR"));
-        return currencyPairSet;
+        return getTestCurrencyPairSet(
+                Pair.of("EUR", "CHF"),
+                Pair.of("EUR", "USD"),
+                Pair.of("USD", "EUR"),
+                Pair.of("CHF", "EUR"));
     }
 
     @Test
@@ -99,6 +98,15 @@ public abstract class AbstractCurrencyRatesProviderTest {
             NotAvailableRateException.class,
             () -> currencyRatesProvider.getExchangeRate("KOT", "BYK")
         );
+    }
+
+    @SafeVarargs
+    protected static Set<Pair<String, String>> getTestCurrencyPairSet(final Pair<String,String>... pairs) {
+        final Set<Pair<String, String>> currencyPairsSet = new HashSet<>(pairs.length);
+        for (Pair<String, String> pair : pairs) {
+            currencyPairsSet.add(pair);
+        }
+        return currencyPairsSet;
     }
 
 }
