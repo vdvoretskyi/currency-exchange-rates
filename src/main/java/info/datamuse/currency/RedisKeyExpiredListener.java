@@ -41,7 +41,7 @@ class RedisKeyExpiredListener extends JedisPubSub {
             if (matcher.matches()) {
                 final String[] currencies = currencies(matcher.group(1));
                 if (currencies.length > 1) {
-                    logger.debug("Currency rate will be updates: {}/{}" + currencies[0], currencies[1]);
+                    logger.debug("Currency rate will be updated: {}/{}", currencies[0], currencies[1]);
                     keyEvalCallback.accept(currencies[0], currencies[1]);
                 }
             }
