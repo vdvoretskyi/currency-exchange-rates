@@ -1,6 +1,7 @@
 package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
+import info.datamuse.currency.providers.internal.AbstractCurrencyRatesProviderTest;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
