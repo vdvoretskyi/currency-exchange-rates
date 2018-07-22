@@ -1,7 +1,6 @@
 package info.datamuse.currency.providers;
 
 import info.datamuse.currency.utils.http.HttpRequest;
-import info.datamuse.currency.providers.internal.AbstractCurrencyRatesProvider;
 import org.json.JSONObject;
 
 import java.math.BigDecimal;

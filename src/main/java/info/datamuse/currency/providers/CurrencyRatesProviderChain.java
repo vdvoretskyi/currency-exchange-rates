@@ -28,7 +28,6 @@ public class CurrencyRatesProviderChain implements CurrencyRatesProvider {
             final CurrencyRatesProvider nextCurrencyRatesProvider = currencyRatesProvider;
             try {
                 logger.debug("Trying {} provider to fetch", nextCurrencyRatesProvider.getClass());
-
                 return nextCurrencyRatesProvider.getExchangeRate(sourceCurrencyCode, targetCurrencyCode);
             } catch(final NotAvailableRateException e) {
                 logger.debug("Provider {} failed. Reason: {}", nextCurrencyRatesProvider.getClass(), e.getLocalizedMessage());
