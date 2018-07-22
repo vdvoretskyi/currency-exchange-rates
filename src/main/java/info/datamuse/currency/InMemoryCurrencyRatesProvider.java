@@ -23,7 +23,7 @@ public class InMemoryCurrencyRatesProvider extends CurrencyRatesProviderDecorato
     private static final String DEFAULT_REDIS_KEY_PREFIX = "currency:exchange:rates";
     private final String keyPrefix;
 
-    InMemoryCurrencyRatesProvider(int timeToLiveInSeconds,
+    public InMemoryCurrencyRatesProvider(int timeToLiveInSeconds,
                                   final CurrencyRatesProvider converterProvider) {
         this(converterProvider, timeToLiveInSeconds, DEFAULT_REDIS_KEY_PREFIX, false);
     }
