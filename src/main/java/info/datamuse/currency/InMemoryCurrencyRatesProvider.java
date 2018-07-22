@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 
-public class InMemoryCurrencyRatesProvider<K, V> extends CurrencyRatesProviderDecorator {
+public class InMemoryCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
 
     private static final Logger logger = LoggerFactory.getLogger(InMemoryCurrencyRatesProvider.class);
 
@@ -38,7 +38,7 @@ public class InMemoryCurrencyRatesProvider<K, V> extends CurrencyRatesProviderDe
     }
 
     private void initCache() {
-        Thread cleanUpThread = new Thread(new CleanupTaskInMemoryCache<>((InMemoryCurrencyRatesProvider<String, BigDecimal>) this));
+        Thread cleanUpThread = new Thread(new CleanupTaskInMemoryCache<>( this));
         cleanUpThread.setDaemon(true);
         cleanUpThread.start();
     }
@@ -111,7 +111,7 @@ public class InMemoryCurrencyRatesProvider<K, V> extends CurrencyRatesProviderDe
     private static final String CURRENCY_PAIR_SPLITTER = "_";
 
     private void updateKeyValue(String key, BigDecimal rate) {
-        cacheMap.put(key, new InMemoryCacheValueHolder(rate));
+        cacheMap.put(key, new InMemoryCacheValueHolder<>(rate));
     }
 
     void cleanUp(boolean softClean) {

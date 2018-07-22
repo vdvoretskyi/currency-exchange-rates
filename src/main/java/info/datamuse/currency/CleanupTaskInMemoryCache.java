@@ -9,9 +9,9 @@ public final class CleanupTaskInMemoryCache<K, V> implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(CleanupTaskInMemoryCache.class);
 
-    private final InMemoryCurrencyRatesProvider<K, V> instance;
+    private final InMemoryCurrencyRatesProvider instance;
 
-    public CleanupTaskInMemoryCache(InMemoryCurrencyRatesProvider<K, V> instance) {
+    public CleanupTaskInMemoryCache(InMemoryCurrencyRatesProvider instance) {
         this.instance = instance;
     }
 

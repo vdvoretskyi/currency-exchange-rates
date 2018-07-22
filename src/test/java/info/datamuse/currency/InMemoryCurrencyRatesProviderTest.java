@@ -11,7 +11,7 @@ class InMemoryCurrencyRatesProviderTest {
     private static final String SourceCurrency = "USD";
     private static final String TargetCurrency = "EUR";
 
-    static InMemoryCurrencyRatesProvider<String, String> cache = new InMemoryCurrencyRatesProvider<>(4 * 60 * 60, new FreeCurrencyConverterApiComProvider());
+    static InMemoryCurrencyRatesProvider cache = new InMemoryCurrencyRatesProvider(4 * 60 * 60, new FreeCurrencyConverterApiComProvider());
 
     static String KEY = cache.uniquePairKey(SourceCurrency, TargetCurrency);
 
