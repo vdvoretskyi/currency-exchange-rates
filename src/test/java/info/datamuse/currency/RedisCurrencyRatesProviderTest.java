@@ -30,7 +30,7 @@ class RedisCurrencyRatesProviderTest {
         poolConfig.setBlockWhenExhausted(true);
         return poolConfig;
     }
-    private static final JedisPool jedisPool = new JedisPool(buildPoolConfig(), "localhost", 6379);
+    private static final JedisPool jedisPool = new JedisPool(buildPoolConfig(), "localhost", 32768);
 
     @Test
     void convertSuccess() {
