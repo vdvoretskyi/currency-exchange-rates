@@ -30,7 +30,7 @@ class RedisCurrencyRatesProviderTest {
         poolConfig.setBlockWhenExhausted(true);
         return poolConfig;
     }
-    private static final JedisPool jedisPool = new JedisPool(buildPoolConfig(), "localhost", 32768);
+    private static final JedisPool jedisPool = new JedisPool(buildPoolConfig(), "localhost", 6379);
 
     @Test
     void convertSuccess() {
@@ -62,7 +62,7 @@ class RedisCurrencyRatesProviderTest {
     void convertLatest() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
                 new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider());
-        redisProviderCurrencyConverter.setExpirationTime(1);
+        redisProviderCurrencyConverter.setTimeToLive(1);
 
         final BigDecimal zeroRate = new BigDecimal(0.00);
         final RedisCurrencyRatesProvider redisPredefinedCurrencyConverter =
@@ -75,7 +75,7 @@ class RedisCurrencyRatesProviderTest {
 
             Thread.sleep(1000);
 
-            final BigDecimal rate3 = redisPredefinedCurrencyConverter.convert("USD", "EUR", true);
+            final BigDecimal rate3 = redisPredefinedCurrencyConverter.getExchangeRate("USD", "EUR", true);
             Assertions.assertEquals(rate3, zeroRate);
 
             final BigDecimal rate4 = redisProviderCurrencyConverter.getExchangeRate("USD", "EUR");
@@ -89,24 +89,24 @@ class RedisCurrencyRatesProviderTest {
     void convertAutoUpdate() throws InterruptedException {
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter =
                 new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), DEFAULT_REDIS_KEY_PREFIX,true);
-        redisProviderCurrencyConverter.setExpirationTime(1);
-        BigDecimal exchangeRate = redisProviderCurrencyConverter.convert("USD", "EUR", false);
+        redisProviderCurrencyConverter.setTimeToLive(1);
+        BigDecimal exchangeRate = redisProviderCurrencyConverter.getExchangeRate("USD", "EUR", false);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
 
         Thread.sleep(1000);
 
-        exchangeRate = redisProviderCurrencyConverter.convert("USD", "EUR", true);
+        exchangeRate = redisProviderCurrencyConverter.getExchangeRate("USD", "EUR", true);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
 
         final RedisCurrencyRatesProvider redisProviderCurrencyConverter1 =
                 new RedisCurrencyRatesProvider(jedisPool, new FreeCurrencyConverterApiComProvider(), "currency/exchange/rates",true);
-        redisProviderCurrencyConverter1.setExpirationTime(1);
-        exchangeRate = redisProviderCurrencyConverter1.convert("USD", "EUR", false);
+        redisProviderCurrencyConverter1.setTimeToLive(1);
+        exchangeRate = redisProviderCurrencyConverter1.getExchangeRate("USD", "EUR", false);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
 
         Thread.sleep(1000);
 
-        exchangeRate = redisProviderCurrencyConverter1.convert("USD", "EUR", false);
+        exchangeRate = redisProviderCurrencyConverter1.getExchangeRate("USD", "EUR", false);
         assertThat(exchangeRate, is(greaterThan(BigDecimal.ZERO)));
     }
 }

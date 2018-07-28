@@ -13,4 +13,11 @@ public final class CurrencyUtils {
     }
     private static final Pattern CODE = Pattern.compile("[A-Z][A-Z][A-Z]");
 
+    public static String currenciesPair(final String sourceCurrencyCode, final String targetCurrencyCode) {
+        Objects.requireNonNull(sourceCurrencyCode, "sourceCurrencyCode must not be null");
+        Objects.requireNonNull(targetCurrencyCode, "targetCurrencyCode must not be null");
+        return sourceCurrencyCode + CURRENCY_PAIR_SPLITTER + targetCurrencyCode;
+    }
+    private static final String CURRENCY_PAIR_SPLITTER = "_";
+
 }

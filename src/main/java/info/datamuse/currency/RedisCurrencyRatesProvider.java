@@ -12,10 +12,10 @@ import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 
 public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
 
-    private static final int DEFAULT_REDIS_CURRENCY_KEY_EXPIRE = 4 * 60 * 60;
+    private static final int DEFAULT_REDIS_KEY_TIME_TO_LIVE = 4 * 60 * 60;
 
-    private int expirationTime = DEFAULT_REDIS_CURRENCY_KEY_EXPIRE;
-    private final boolean autoUpdate;
+    private int timeToLive = DEFAULT_REDIS_KEY_TIME_TO_LIVE;
+    private final boolean isAutoUpdatable;
 
     protected final JedisPool jedisPool;
     protected Thread updateKeysOnExpirationThread;
@@ -34,38 +34,45 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     public RedisCurrencyRatesProvider(final JedisPool jedisPool,
                                       final CurrencyRatesProvider converterProvider,
                                       final String redisKeyPrefix,
-                                      final boolean autoUpdate) {
+                                      final boolean isAutoUpdatable) {
         super(converterProvider);
         this.jedisPool = jedisPool;
         this.keyPrefix = redisKeyPrefix;
-        this.autoUpdate = autoUpdate;
-        if (autoUpdate) {
+        this.isAutoUpdatable = isAutoUpdatable;
+        if (isAutoUpdatable) {
             jedisPubSub = jedisPool.getResource();
             setExpiredListener(keySpaceMessagePattern(keyPrefix), jedisPubSub);
         }
     }
 
-    public void setExpirationTime(final int expirationTime) {
-        if (expirationTime <= 0) {
+    private static String keySpaceMessagePattern(final String keyPrefix) {
+        return "__keyspace*__:"
+                + keyPrefix
+                + REDIS_NAMESPACE_DELIMITER
+                + '*';
+    }
+
+    public void setTimeToLive(final int timeToLive) {
+        if (timeToLive <= 0) {
             throw new IllegalArgumentException("Expiration time should be positive");
         }
-        this.expirationTime = expirationTime;
+        this.timeToLive = timeToLive;
     }
 
-    public int getExpirationTime() {
-        return expirationTime;
+    public int getTimeToLive() {
+        return timeToLive;
     }
 
-    public boolean isAutoUpdate() {
-        return autoUpdate;
+    public boolean isAutoUpdatable() {
+        return isAutoUpdatable;
     }
 
     @Override
     public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode) {
-        return convert(sourceCurrencyCode, targetCurrencyCode, false);
+        return getExchangeRate(sourceCurrencyCode, targetCurrencyCode, false);
     }
 
-    public BigDecimal convert(final String sourceCurrencyCode, final String targetCurrencyCode, final boolean latest) {
+    public BigDecimal getExchangeRate(final String sourceCurrencyCode, final String targetCurrencyCode, final boolean latest) {
         validateCurrencyCode(sourceCurrencyCode);
         validateCurrencyCode(targetCurrencyCode);
 
@@ -85,10 +92,10 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
                     return new BigDecimal(cachedValue);
                 }
             }
-            final BigDecimal rate = provider.get();
-            updateKeyValue(jedis, key, rate);
-            logger.debug("Currency conversion rate was updated. {}/{}={}", sourceCurrency,targetCurrency, rate);
-            return rate;
+            final BigDecimal exchangeRate = provider.get();
+            updateKeyValue(jedis, key, exchangeRate);
+            logger.debug("Currency conversion rate was updated. {}/{}={}", sourceCurrency,targetCurrency, exchangeRate);
+            return exchangeRate;
         }
     }
 
@@ -97,7 +104,7 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     }
 
     private void updateKeyValue(final Jedis jedis, final String key, final BigDecimal rate) {
-        jedis.setex(key, expirationTime, rate.toString());
+        jedis.setex(key, timeToLive, rate.toString());
     }
 
     private void setExpiredListener(final String key, final Jedis jedis) {
@@ -106,7 +113,7 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
                 logger.info("Subscribing to \"commonChannel\". This thread will be blocked.");
                 jedis.configSet("notify-keyspace-events", "KEA");
                 logger.info("SET notify-keyspace-events=KEA");
-                jedis.psubscribe(new RedisKeyExpiredListener(keyPrefix, (sourceCurrencyCode, targetCurrencyCode) -> convert(sourceCurrencyCode, targetCurrencyCode, true)), key);
+                jedis.psubscribe(new RedisKeyExpiredListener(keyPrefix, (sourceCurrencyCode, targetCurrencyCode) -> getExchangeRate(sourceCurrencyCode, targetCurrencyCode, true)), key);
                 logger.info("Subscription ended.");
             } catch(final RuntimeException e) {
                 logger.error("Subscribing failed.", e);
@@ -133,12 +140,4 @@ public class RedisCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
     }
     static final String REDIS_NAMESPACE_DELIMITER = ":";
     static final String CURRENCY_PAIR_SPLITTER = "_";
-
-    private static String keySpaceMessagePattern(final String keyPrefix) {
-        return REDIS_KEYSPACE_PREFIX
-                + keyPrefix
-                + REDIS_NAMESPACE_DELIMITER
-                + '*';
-    }
-    private static final String REDIS_KEYSPACE_PREFIX = "__keyspace*__:";
 }
