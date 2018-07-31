@@ -1,4 +1,4 @@
-package info.datamuse.currency.providers;
+package info.datamuse.currency.providers.utils;
 
 import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;

@@ -2,6 +2,7 @@ package info.datamuse.currency.providers;
 
 import info.datamuse.currency.CurrencyRatesProvider;
 import info.datamuse.currency.NotAvailableRateException;
+import info.datamuse.currency.providers.utils.CurrencyRatesProviderChain;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
