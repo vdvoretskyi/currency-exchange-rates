@@ -19,6 +19,47 @@
         <url>https://www.datamuse.info</url>
     </organization>
 
+    <scm>
+        <url>https://github.com/vdvoretskyi/currency-exchange-rates</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>vladislav_dvoretskyi</id>
+            <name>Vladyslav Dvoretskyi</name>
+            <email>jasper.ua@gmail.com</email>
+            <url>https://www.facebook.com/vladislav.dvoretsky</url>
+            <organization>Datamuse</organization>
+            <organizationUrl>https://www.datamuse.info</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>architect</role>
+            </roles>
+            <timezone>Europe/Kiev</timezone>
+        </developer>
+        <developer>
+            <id>alex_shesterov</id>
+            <name>Alex Shesterov</name>
+            <email>alex.shesterov@gmail.com</email>
+            <url>https://www.facebook.com/alex.shesterov</url>
+            <organization>Datamuse</organization>
+            <organizationUrl>https://www.datamuse.info</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>architect</role>
+            </roles>
+            <timezone>Europe/Berlin</timezone>
+        </developer>
+    </developers>
+
     <packaging>jar</packaging>
 
     <properties>
