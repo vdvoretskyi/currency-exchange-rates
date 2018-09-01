@@ -6,7 +6,7 @@
 
     <groupId>info.datamuse</groupId>
     <artifactId>currency-exchange-rates</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-alpha</version>
 
     <name>Currency Exchange Rates library</name>
     <description>
