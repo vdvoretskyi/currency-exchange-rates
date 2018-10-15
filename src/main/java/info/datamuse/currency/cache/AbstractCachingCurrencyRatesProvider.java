@@ -1,7 +1,6 @@
 package info.datamuse.currency.cache;
 
 import info.datamuse.currency.CurrencyRatesProvider;
-import info.datamuse.currency.CurrencyRatesProviderDecorator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,15 +8,18 @@ import java.math.BigDecimal;
 
 import static info.datamuse.currency.utils.CurrencyUtils.validateCurrencyCode;
 
-public abstract class AbstractCachingCurrencyRatesProvider extends CurrencyRatesProviderDecorator {
+public abstract class AbstractCachingCurrencyRatesProvider implements CurrencyRatesProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractCachingCurrencyRatesProvider.class);
 
     private static final int DEFAULT_KEY_TIME_TO_LIVE = 4 * 60 * 60;
+
     protected int timeToLive;
 
+    protected final CurrencyRatesProvider converterProvider;
+
     protected AbstractCachingCurrencyRatesProvider(final CurrencyRatesProvider converterProvider) {
-        super(converterProvider);
+        this.converterProvider = converterProvider;
         timeToLive = DEFAULT_KEY_TIME_TO_LIVE;
     }
 
@@ -48,7 +50,7 @@ public abstract class AbstractCachingCurrencyRatesProvider extends CurrencyRates
             }
         }
 
-        final BigDecimal exchangeRate = super.getExchangeRate(sourceCurrencyCode, targetCurrencyCode);
+        final BigDecimal exchangeRate = converterProvider.getExchangeRate(sourceCurrencyCode, targetCurrencyCode);
         putCacheValue(sourceCurrencyCode, targetCurrencyCode, exchangeRate);
 
         return exchangeRate;

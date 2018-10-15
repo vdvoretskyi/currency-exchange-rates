@@ -1,4 +1,4 @@
-package info.datamuse.currency.cache;
+package info.datamuse.currency.cache.redis;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,8 +8,8 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static info.datamuse.currency.cache.RedisCurrencyRatesProvider.CURRENCY_PAIR_SPLITTER;
-import static info.datamuse.currency.cache.RedisCurrencyRatesProvider.REDIS_NAMESPACE_DELIMITER;
+import static info.datamuse.currency.cache.redis.RedisCurrencyRatesProvider.CURRENCY_PAIR_SPLITTER;
+import static info.datamuse.currency.cache.redis.RedisCurrencyRatesProvider.REDIS_NAMESPACE_DELIMITER;
 
 class RedisKeyExpiredListener extends JedisPubSub {
     private static final Logger logger = LoggerFactory.getLogger(RedisKeyExpiredListener.class);
