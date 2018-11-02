@@ -7,16 +7,17 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 
 import java.math.BigDecimal;
+import java.util.function.Supplier;
 
 import static java.util.Objects.requireNonNull;
 
-public class RedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProvider {
+public class JedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisCurrencyRatesProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(JedisCurrencyRatesProvider.class);
 
     private final boolean isAutoUpdatable;
 
-    protected final JedisConnectionFactory jedisConnectionFactory;
+    protected final Supplier<Jedis> jedisConnectionFactory;
 
     private Thread updateKeysOnExpirationThread;
     private Jedis jedisPubSub;
@@ -24,21 +25,21 @@ public class RedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProv
     public static final String DEFAULT_REDIS_KEY_PREFIX = "currency:exchange:rates";
     private final String keyPrefix;
 
-    public RedisCurrencyRatesProvider(final JedisConnectionFactory jedisConnectionFactory,
+    public JedisCurrencyRatesProvider(final Supplier<Jedis> jedisConnectionSupplier,
                                       final CurrencyRatesProvider converterProvider) {
-        this(jedisConnectionFactory, converterProvider, DEFAULT_REDIS_KEY_PREFIX,false);
+        this(jedisConnectionSupplier, converterProvider, DEFAULT_REDIS_KEY_PREFIX,false);
     }
 
-    public RedisCurrencyRatesProvider(final JedisConnectionFactory jedisConnectionFactory,
+    public JedisCurrencyRatesProvider(final Supplier<Jedis> jedisConnectionSupplier,
                                       final CurrencyRatesProvider converterProvider,
                                       final String redisKeyPrefix,
                                       final boolean isAutoUpdatable) {
         super(converterProvider);
-        this.jedisConnectionFactory = requireNonNull(jedisConnectionFactory);
+        this.jedisConnectionFactory = requireNonNull(jedisConnectionSupplier);
         this.keyPrefix = requireNonNull(redisKeyPrefix);
         this.isAutoUpdatable = isAutoUpdatable;
         if (isAutoUpdatable) {
-            jedisPubSub = jedisConnectionFactory.getConnection();
+            jedisPubSub = jedisConnectionSupplier.get();
             setExpiredListener(keySpaceMessagePattern(keyPrefix), jedisPubSub);
         }
     }
@@ -74,7 +75,7 @@ public class RedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProv
     @Override
     protected BigDecimal getCacheValue(final String sourceCurrencyCode, final String targetCurrencyCode) {
         final String key = uniquePairKey(sourceCurrencyCode, targetCurrencyCode);
-        try (final Jedis jedis = jedisConnectionFactory.getConnection()) {
+        try (final Jedis jedis = jedisConnectionFactory.get()) {
             final String cacheValue = jedis.get(key);
             if (cacheValue != null) {
                 return new BigDecimal(cacheValue);
@@ -86,7 +87,7 @@ public class RedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProv
     @Override
     protected void putCacheValue(final String sourceCurrencyCode, final String targetCurrencyCode, final BigDecimal exchangeRate) {
         final String key = uniquePairKey(sourceCurrencyCode, targetCurrencyCode);
-        try (final Jedis jedis = jedisConnectionFactory.getConnection()) {
+        try (final Jedis jedis = jedisConnectionFactory.get()) {
             jedis.setex(key, timeToLive, exchangeRate.toString());
         }
         logger.debug("Currency conversion rate was updated. {}/{}={}", sourceCurrencyCode, targetCurrencyCode, exchangeRate);
@@ -95,7 +96,7 @@ public class RedisCurrencyRatesProvider extends AbstractCachingCurrencyRatesProv
     @Override
     public boolean removeFromCache(final String sourceCurrencyCode, final String targetCurrencyCode) {
         final String cacheKey = uniquePairKey(sourceCurrencyCode, targetCurrencyCode);
-        try (final Jedis jedis = jedisConnectionFactory.getConnection()) {
+        try (final Jedis jedis = jedisConnectionFactory.get()) {
             return jedis.del(cacheKey) > 0 ? Boolean.TRUE : Boolean.FALSE;
         }
     }
